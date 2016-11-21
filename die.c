@@ -5,9 +5,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Memory table length
 #define CELL_TABLE_LENGTH 2147483647
+#define NUM_COMMANDS      3 // for right now
 
 // Exception + Error message strings
 #define MSG_NO_INPUT_FILE       "No input file? Kill yourself.\n"
@@ -32,14 +34,25 @@ typedef struct
 {
   char     *ComString;  // Passed command string
   function  Function;   // Associated function
-} command;
+} interpreter;
+
+static const interpreter gInterpreters[NUM_COMMANDS] = {
+  {"...", DoNothing},
+  {"die", Increment},
+  {"please", Decrement}
+};
 
 /*
  * Takes in a command string and returns the associated function
  */
 static function
-RunCommand(char *command)
+InterpretCommand(char *command)
 {
+  if (!command) return DoNothing;
+  for (int i = 0; i < NUM_COMMANDS; i++) {
+    if (strcmp(gInterpreters[i].ComString, command))
+      return gInterpreters[i].Function;
+  }
   return DoNothing;
 }
 
@@ -117,4 +130,9 @@ main(int argc, char **argv)
   printf("Read in filename %s.\n", source_file_path);
   char *source_buffer = ReadSource(source_file_path);
   printf("Source: \n=>\n%s\n", source_buffer);
+
+  cell_table MainCellTable;
+  MainCellTable.Pointer = MainCellTable.Cells;
+
+
 }

@@ -21,5 +21,14 @@ COMMAND(DoNothing)
  */
 COMMAND(Increment)
 {
-  table->Pointer++;
+
+}
+
+/*
+ * Com: Decrement
+ * Function: Decrements the currently pointed-to value.
+ */
+COMMAND(Decrement)
+{
+
 }
