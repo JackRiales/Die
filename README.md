@@ -16,36 +16,30 @@ any issue. I use build scripts in the form of build.sh and build.bat myself.
 
 Comments are written like you're talking under your breath.
 
-`
-... This is a comment
-... This is another comment
-`
+`... This is a comment`
+`... This is another comment`
 
 The central command of the language is die. Various forms of die incremnt the currently pointed
 value in certain different ways.
 
-`
-die => +1
-Die => +10
-DIE => +100
-`
+`die` => +1
+`Die` => +10
+`DIE` => +100
 
 Increasing the number of E's multiplies the incrementing value.
 
-`
-dieeee => +4
-Dieeee => +40
-DIEEEE => +400
-`
+`dieeee` => +4
+`Dieeee` => +40
+`DIEEEE` => +400
 
 For loops are done using `ok so` and `stop`
 The number of o's in so are how many times it loops.
 
-`
+```
 ... loop 4 times
 ok soooo
 die die die die die
 stop
-`
+```
 
 result: +20 @ 0
