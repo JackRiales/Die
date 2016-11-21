@@ -1,0 +1,3 @@
+# Don't add binaries
+*.out
+*.exe
