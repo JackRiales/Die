@@ -21,7 +21,7 @@ COMMAND(DoNothing)
  */
 COMMAND(Increment)
 {
-
+    *(*table).Pointer += 1;
 }
 
 /*
@@ -30,5 +30,32 @@ COMMAND(Increment)
  */
 COMMAND(Decrement)
 {
+    *(*table).Pointer -= 1;
+}
 
+/*
+ * Com: Point Left
+ * Function: Decrements the pointer, putting it to the next cell right
+ */
+COMMAND(PointLeft)
+{
+    table->Pointer--;
+}
+
+/*
+ * Com: Point Right
+ * Function: Increments the pointer, putting it to the next cell right
+ */
+COMMAND(PointRight)
+{
+    table->Pointer++;
+}
+
+/*
+ * Com: Print
+ * Function: Prints the char value of the current cell.
+ */
+COMMAND(Print)
+{
+    putchar(*(*table).Pointer);
 }
