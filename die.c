@@ -7,58 +7,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Memory table length
-#define CELL_TABLE_LENGTH 9001
-#define NUM_COMMANDS      3 // for right now
-
-// Exception + Error message strings
-#define MSG_NO_INPUT_FILE       "No input file? Kill yourself.\n"
-#define MSG_BAD_ALLOCATION      "Could not allocate buffer.\n"
-#define MSG_BAD_INPUT_FILE_PATH "Could not open file at path %s.\n"
-#define MSG_BAD_INPUT_FILE_READ "Could not read input file.\n"
-
-// My personal preference of basic type names
-typedef int          s32;
-typedef unsigned int u32;
-typedef u32          b32;
-#define TRUE            1
-#define FALSE           0
-
-typedef struct
-{
-    s32  Cells[CELL_TABLE_LENGTH];
-    s32 *Pointer;
-} cell_table;
-
+#include "die.h"
 #include "commands.c"
 
-typedef void (*function)(cell_table *table);
-typedef struct
-{
-    char     *ComString;  // Passed command string
-    function  Function;   // Associated function
-} interpreter;
+static const char* gMajorTokens[] = {
+    "...", "die", "DIE", "please", "PLEASE"
+};
 
 static const interpreter gInterpreters[NUM_COMMANDS] = {
     {"...", DoNothing},
     {"die", Increment},
-    {"please", Decrement}
+    {"please", Decrement},
+    {"sorry", Print}
 };
-
-/*
- * Takes in a command string and returns the associated function
- */
-static function
-InterpretCommand(char *command)
-{
-    if (!command) return DoNothing;
-    for (int i = 0; i < NUM_COMMANDS; i++) {
-        if (strcmp(gInterpreters[i].ComString, command))
-            return gInterpreters[i].Function;
-    }
-    return DoNothing;
-}
-
 /*
  * Reads the source file at the given path
  * and outputs it as a character string.
@@ -102,13 +63,93 @@ ReadSource(char *path)
 }
 
 /*
- * Preprocesses the input file and outputs a list of
+ * Tokenizes the source and returns the tokens as a string array
+ */
+static source_tokens
+TokenizeSource(char *source)
+{
+    const char *delimiters = " ";
+    char *current_line = source;
+
+    u32 token_count = 0;
+    char* token_buffer[2048];
+
+    // Run through source line-by-line
+    while (current_line)
+    {
+        // Temporarily terminate line
+        char *next = strchr(current_line, '\n');
+        if (next) *next = '\0';
+
+        // Preview of current line
+        // printf("$> %s\n", current_line);
+
+        // Parse line tokens
+        // printf("tokens =>\n[[\n");
+        char *token = strtok(current_line, delimiters);
+        b32 comment_block = FALSE;
+        while (token && !comment_block)
+        {
+            if (token_count > 2048) break;
+
+            // Line comment break
+            if (strcmp(token, gMajorTokens[0]) == 0)
+                comment_block = TRUE;
+
+            // Copy into the token buffer
+            token_buffer[token_count] = malloc(strlen(token) + 1);
+            strcpy(token_buffer[token_count], token);
+
+            // Preview token
+            // printf("%d %s\n", token_count, token_buffer[token_count]);
+
+            // Next token
+            token_count += 1;
+            token = strtok(NULL, delimiters);
+        }
+        // printf("]]\n\n");
+
+        // Restore newline and go to next, if there's any more
+        if (next) *next = '\n';
+        current_line = next ? (next+1) : NULL;
+    }
+
+    source_tokens result;
+    result.Count = token_count;
+    result.TokenList = token_buffer;
+    return result;
+}
+
+/*
+ * Takes in a command string and returns the associated function
+ */
+static function
+InterpretCommand(char *command)
+{
+    if (!command) return DoNothing;
+    for (int i = 0; i < NUM_COMMANDS; i++) {
+        if (strcmp(gInterpreters[i].ComString, command))
+            return gInterpreters[i].Function;
+    }
+    return DoNothing;
+}
+
+/*
+ * Compiles the list of tokens and outputs a list of
  * commands to process.
  */
-static void
-Preproc(char *command_string)
+static function*
+Compile(const source_tokens *tokens)
 {
+    function* command_buffer = (function*) malloc (tokens->Count * sizeof(function));
+    if (!command_buffer) return NULL;
 
+    for (size_t i = 0; i < tokens->Count; i++)
+    {
+        command_buffer[i] = InterpretCommand(tokens->TokenList[i]);
+    }
+
+    return command_buffer;
 }
 
 /*
@@ -116,7 +157,7 @@ Preproc(char *command_string)
  * Will break if command buffer is
  */
 static void
-Process(cell_table *table, u32 count, function commands[])
+Process(cell_table *table, u32 count, const function *commands)
 {
     for (size_t i = 0; i < count; i++)
     {
@@ -134,16 +175,23 @@ main(int argc, char **argv)
     }
 
     char *source_file_path = argv[argc-1];
-    printf("Read in filename %s.\n", source_file_path);
+    if (!source_file_path) return 1;
+    // printf("Read in filename %s.\n", source_file_path);
 
     char *source_buffer = ReadSource(source_file_path);
-    printf("Source: \n=>\n%s\n", source_buffer);
+    if (!source_buffer) return 1;
+    // printf("Source: \n=>\n%s\n", source_buffer);
 
     cell_table MainCellTable;
     MainCellTable.Pointer = MainCellTable.Cells;
 
+    source_tokens tokens = TokenizeSource(source_buffer);
+    free(source_buffer); source_buffer = NULL;
 
+    function* commands = Compile(&tokens);
+    if (!commands) return 1;
 
-    free(source_buffer);
+    Process(&MainCellTable, tokens.Count, commands);
+
     return 0;
 }
