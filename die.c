@@ -77,9 +77,9 @@ static source_tokens
 TokenizeSource(char *source)
 {
     const char *delimiters = " ";
-    char *current_line = source;
-
+    source_tokens result;
     u32 token_count = 0;
+    char *current_line = source;
     char* token_buffer[2048];
 
     // Run through source line-by-line
@@ -89,11 +89,7 @@ TokenizeSource(char *source)
         char *next = strchr(current_line, '\n');
         if (next) *next = '\0';
 
-        // Preview of current line
-        // printf("$> %s\n", current_line);
-
         // Parse line tokens
-        // printf("tokens =>\n[[\n");
         char *token = strtok(current_line, delimiters);
         b32 comment_block = FALSE;
         while (token && !comment_block)
@@ -108,21 +104,16 @@ TokenizeSource(char *source)
             token_buffer[token_count] = malloc(strlen(token) + 1);
             strcpy(token_buffer[token_count], token);
 
-            // Preview token
-            // printf("%d %s\n", token_count, token_buffer[token_count]);
-
             // Next token
             token_count += 1;
             token = strtok(NULL, delimiters);
         }
-        // printf("]]\n\n");
 
         // Restore newline and go to next, if there's any more
         if (next) *next = '\n';
         current_line = next ? (next+1) : NULL;
     }
 
-    source_tokens result;
     result.Count = token_count;
     result.TokenList = token_buffer;
     return result;
@@ -191,11 +182,11 @@ main(int argc, char **argv)
 
     char *source_file_path = argv[argc-1];
     if (!source_file_path) return 1;
-    // printf("Read in filename %s.\n", source_file_path);
+    if (debug) printf("Read in filename %s.\n", source_file_path);
 
     char *source_buffer = ReadSource(source_file_path);
     if (!source_buffer) return 1;
-    // printf("Source: \n=>\n%s\n", source_buffer);
+    if (debug) printf("Source: \n=>\n%s\n", source_buffer);
 
     cell_table MainCellTable;
     MainCellTable.Pointer = MainCellTable.Cells;
@@ -207,6 +198,7 @@ main(int argc, char **argv)
     if (!commands) return 1;
 
     Process(&MainCellTable, tokens.Count, commands);
+    free(commands); commands = NULL;
 
     return 0;
 }
