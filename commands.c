@@ -65,12 +65,14 @@ COMMAND(PointRight)
  */
 COMMAND(Print)
 {
-//    putchar(*(*table).Pointer);
-    printf("%c", *(*table).Pointer);
+    if (debug)
+        printf("%c\n", *(*table).Pointer);
+    else
+        printf("%c", *(*table).Pointer);
 }
 
 
-/* 
+/*
  * New (temporary?) functions
  */
 
