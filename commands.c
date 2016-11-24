@@ -12,7 +12,8 @@
  */
 COMMAND(DoNothing)
 {
-  return;
+    printf("Doing nothing!\n");
+    return;
 }
 
 /*
@@ -22,6 +23,7 @@ COMMAND(DoNothing)
 COMMAND(Increment)
 {
     *(*table).Pointer += 1;
+    printf("Incrementing to %d\n",  *(*table).Pointer);
 }
 
 /*
@@ -31,6 +33,7 @@ COMMAND(Increment)
 COMMAND(Decrement)
 {
     *(*table).Pointer -= 1;
+    printf("Decrementing to %d\n",  *(*table).Pointer);
 }
 
 /*
