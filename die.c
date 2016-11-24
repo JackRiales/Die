@@ -37,7 +37,9 @@ ReadSource(char *path)
 {
     FILE *source_file;
     char *source_buffer;
-    u32 size;
+    size_t file_size = 0;
+    size_t buffer_size = 0;
+    size_t bytes_read = 0;
 
     // Try to open the file
     source_file = fopen(path, "r");
@@ -48,21 +50,23 @@ ReadSource(char *path)
 
     // Getting the size of the file
     fseek(source_file, 0L, SEEK_END);
-    size = ftell(source_file);
+    file_size = ftell(source_file);
     rewind(source_file);
 
     // Create and read to source buffer
-    source_buffer = (char*) calloc(1, size + 1);
+    buffer_size = sizeof(char) * file_size + 1;
+    source_buffer = (char*) calloc(1, buffer_size);
     if (!source_buffer) {
         fclose(source_file);
         fprintf(stderr, MSG_BAD_ALLOCATION);
         return NULL;
     }
 
-    if (fread(source_buffer, size, 1, source_file) != 1) {
+    bytes_read = fread(source_buffer, buffer_size, 1, source_file);
+    if (bytes_read != 0) {
         fclose(source_file);
         free(source_buffer);
-        fprintf(stderr, MSG_BAD_INPUT_FILE_READ);
+        fprintf(stderr, MSG_BAD_INPUT_FILE_READ, bytes_read);
         return NULL;
     }
 
@@ -181,7 +185,7 @@ main(int argc, char **argv)
         printf(MSG_NO_INPUT_FILE);
         return 0;
     }
-    
+
     // Switch debug mode on
     if (argc == 3) {
         if (strcmp(argv[1], "--debug") == 0) {

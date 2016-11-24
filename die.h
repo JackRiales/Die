@@ -12,7 +12,7 @@
 #define MSG_NO_INPUT_FILE       "No input file? Kill yourself.\n"
 #define MSG_BAD_ALLOCATION      "Could not allocate buffer.\n"
 #define MSG_BAD_INPUT_FILE_PATH "Could not open file at path %s.\n"
-#define MSG_BAD_INPUT_FILE_READ "Could not read input file.\n"
+#define MSG_BAD_INPUT_FILE_READ "Could not read input file. Bytes read: %d\n"
 
 // My personal preference of basic type names
 typedef int          s32;
