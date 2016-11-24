@@ -17,9 +17,12 @@ static const char* gMajorTokens[] = {
 static const interpreter gInterpreters[NUM_COMMANDS] = {
     {"...", DoNothing},
     {"die", Increment},
+    {"DIE", Increment},
     {"please", Decrement},
+    {"PLEASE", Decrement},
     {"sorry", Print}
 };
+
 /*
  * Reads the source file at the given path
  * and outputs it as a character string.
@@ -128,7 +131,7 @@ InterpretCommand(char *command)
 {
     if (!command) return DoNothing;
     for (int i = 0; i < NUM_COMMANDS; i++) {
-        if (strcmp(gInterpreters[i].ComString, command))
+        if (strcmp(gInterpreters[i].ComString, command) == 0)
             return gInterpreters[i].Function;
     }
     return DoNothing;

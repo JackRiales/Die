@@ -6,7 +6,7 @@
 
 // Memory table length
 #define CELL_TABLE_LENGTH 9001
-#define NUM_COMMANDS      4 // for right now
+#define NUM_COMMANDS      6 // for right now
 
 // Exception + Error message strings
 #define MSG_NO_INPUT_FILE       "No input file? Kill yourself.\n"
