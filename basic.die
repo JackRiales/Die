@@ -1,8 +1,11 @@
 ... Basic DIE language file
 ... Repository w/ specifications found at https://github.com/JackRiales/Die
+... Prints "DIE" to stdout
 
-die
-die die
-please die
-DIE
+Die Die Die Die Die Die
+die die die die die die die die
 sorry
+die die die die die
+sorry
+please please please please please die sorry
+go Die sorry

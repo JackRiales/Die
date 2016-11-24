@@ -17,10 +17,15 @@ static const char* gMajorTokens[] = {
 static const interpreter gInterpreters[NUM_COMMANDS] = {
     {"...", DoNothing},
     {"die", Increment},
-    {"DIE", Increment},
+    {"Die", Increment10},
+    {"DIE", Increment100},
     {"please", Decrement},
-    {"PLEASE", Decrement},
-    {"sorry", Print}
+    {"Please", Decrement10},
+    {"PLEASE", Decrement100},
+    {"sorry", Print},
+    {"Sorry", PrintValue},
+    {"go", PointRight},
+    {".", PointLeft}
 };
 
 /*
@@ -175,6 +180,13 @@ main(int argc, char **argv)
     if (argc < 2) {
         printf(MSG_NO_INPUT_FILE);
         return 0;
+    }
+    
+    // Switch debug mode on
+    if (argc == 3) {
+        if (strcmp(argv[1], "--debug") == 0) {
+            debug = TRUE;
+        }
     }
 
     char *source_file_path = argv[argc-1];
