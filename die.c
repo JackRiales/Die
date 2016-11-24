@@ -10,10 +10,6 @@
 #include "die.h"
 #include "commands.c"
 
-static const char* gMajorTokens[] = {
-    "...", "die", "DIE", "please", "PLEASE"
-};
-
 static const interpreter gInterpreters[NUM_COMMANDS] = {
     {"...", DoNothing},
     {"die", Increment},
@@ -105,7 +101,7 @@ TokenizeSource(char *source)
             if (token_count > 2048) break;
 
             // Line comment break
-            if (strcmp(token, gMajorTokens[0]) == 0)
+            if (strcmp(token, "...") == 0)
                 comment_block = TRUE;
 
             // Copy into the token buffer
