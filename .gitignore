@@ -2,3 +2,6 @@
 *.out
 *.exe
 *.obj
+
+# Definitely don't add emacs temp files.
+.#*
