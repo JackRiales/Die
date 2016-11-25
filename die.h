@@ -5,7 +5,8 @@
 
 // Memory table length
 #define CELL_TABLE_LENGTH 9001 // TODO(Jack) Find out the highest number this can be.
-#define NUM_COMMANDS      11   // Convenience value for linear looping. Just for now.
+#define NUM_RESERVES      7    // Convenience value for linear looping of reserves. Just for now.
+#define NUM_COMMANDS      11   // See above. :)
 
 // Exception + Error message strings
 #define MSG_NO_INPUT_FILE       "No input file? Kill yourself.\n"

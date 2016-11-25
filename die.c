@@ -11,12 +11,18 @@
 #include "commands.c" // Command implementations
 
 /*
- * Global dynamic array of global variables.
+ * Global array of global variables.
  * Currently, the allocation method is dynamic,
  * meaning calls to `you` are when the allocation takes place
  * and no commands before the call can access that variable name.
+ *
+ * For simplicity, right now I'm limiting the number of vars to 1024
+ * So I don't have to mess with dynamic array stuff.
+ *
+ * TODO(Jack): Implement dynamic array stuff.
  */
-static const var* gVariables;
+static u32  gVarCount;
+static var  gVariables[1024];
 
 /*
  * To implement variables we need to define a list of words that _cannot_
@@ -24,7 +30,7 @@ static const var* gVariables;
  * down to lowercase, so we don't need to worry about listing uppercase variants
  * of our keywords.
  */
-static const char* gReservedWords[] = {
+static const char* gReservedWords[NUM_RESERVES] = {
     "...",
     "die",
     "please",
@@ -52,6 +58,121 @@ static const interpreter gInterpreters[NUM_COMMANDS] = {
     {"go", PointRight},
     {".", PointLeft}
 };
+
+/*
+ * UTILITY
+ * Returns a copy of the given string
+ */
+static char*
+CopyString(const char *original)
+{
+    char *copy = malloc (sizeof(char) * strlen(original) + 1);
+    strcpy(copy, original);
+    return copy;
+}
+
+/*
+ * UTILITY
+ * Returns a copy of the given string, with all lowercase chars
+ */
+static char*
+StringToLower(const char *string)
+{
+    char *copy = CopyString(string);
+    for (; copy; ++copy) *copy = tolower(*copy);
+    return copy;
+}
+
+/*
+ * Effectively adds the name to the global table.
+ * Returns the added variable object, or NULL
+ * if one of the following failures happen:
+ * - Name is already used
+ * - Name is reserved in the language
+ * TODO(Jack): What this ultimately is is a command that needs to be ran from a keyword.
+ *             Change command structure to reflect what this needs to do, then add this to commands.c
+ *             (Same with the lookup function, below)
+ */
+static var*
+{
+    if (!table || !varname) return NULL;
+
+    size_t bound_names_itr = 0;
+    size_t reserved_names_itr = 0;
+    char  *varname_c;
+    var    new_variable;
+
+    // Mangle name to lowercase
+    varname_c = StringToLower(varname);
+
+    // Validate name by checking var names that are already bound
+    if (gVarCount > 0)
+    {
+        for (; bound_names_itr < gVarCount; ++bound_names_itr)
+        {
+            if (strcmp(varname_c, gVariables[bound_names_itr].Name) == 0)
+            {
+                if (debug) printf("ERROR: Variable name %s already assigned to cell address %p.\n", varname_c, gVariables[bound_names_itr].CellAddress);
+                return NULL;
+            }
+        }
+    }
+
+    // Validate name by checking reserved names
+    for (; reserved_names_itr < NUM_RESERVES; ++reserved_names_itr)
+    {
+        if (strcmp(varname_c, gReservedWords[reserved_names_itr]) == 0)
+        {
+            if (debug) printf("ERROR: Variable name %s is reserved.\n", varname_c);
+            return NULL;
+        }
+    }
+
+    // Validation is done, now just need to bind
+    new_variable.Name        = varname_c;
+    new_variable.CellAddress = table->Pointer;
+    gVariables[gVarCount++]  = new_variable;
+
+    // Cleanup and return
+    free(varname_c);
+    return &gVariables[gVarCount-1];
+}
+
+/*
+ * Goes to the cell with the given name, assuming it exists.
+ * Will return true if the pointer was successfully moved,
+ * false otherwise.
+ */
+static b32
+GoToVariable(cell_table *table, char *varname)
+{
+    if (!table || !varname) return FALSE;
+
+    char  *varname_c;
+    size_t var_index      = 0;
+    size_t var_search_itr =  0;
+
+    // Mangle passed name to lower for lookup
+    varname_c = StringToLower(varname);
+
+    // Ensure that the name exists in the global table.
+    for (; var_search_itr < gVarCount; ++var_search_itr)
+    {
+        if (strcmp(varname_c, gVariables[var_search_itr].Name) == 0)
+        {
+            var_index = var_search_itr;
+            break;
+        }
+
+        // Variable not found
+        if (debug) printf("ERROR: Variable name %s not found.\n", varname);
+        return FALSE;
+    }
+
+    // Index is the found var, just point to the cell
+    table->Pointer = gVariables[var_index].CellAddress;
+    return TRUE;
+}
 
 /*
  * Reads the source file at the given path
@@ -143,7 +264,7 @@ TokenizeSource(char *source)
         current_line = next ? (next+1) : NULL;
     }
 
-    result.Count = token_count;
+    result.Count     = token_count;
     result.TokenList = token_buffer;
     return result;
 }
