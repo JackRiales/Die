@@ -7,8 +7,17 @@
 #include <stdlib.h>   // Heap allocators, i.e. malloc and calloc
 #include <string.h>   // String utilities
 
-#include "die.h"
-#include "commands.c"
+#include "die.h"      // Type and struct definitions
+#include "commands.c" // Command implementations
+
+/*
+ * Global dynamic array of global variables.
+ * Currently, the allocation method is dynamic,
+ * meaning calls to `you` are when the allocation takes place
+ * and no commands before the call can access that variable name.
+ */
+static const var* gVariables;
+
 /*
  * To implement variables we need to define a list of words that _cannot_
  * be variable names. This is that list. All variable names will be mangled

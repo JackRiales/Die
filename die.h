@@ -64,3 +64,15 @@ typedef struct
     u32    Count;
     char **TokenList;
 } source_tokens;
+
+/*
+ * Variable struct for user-defined variables, included with a name and an associated cell.
+ * In the future I may allow assignment operations, which may involve either static or dynamic
+ * typing, but for right now I merely want them used to name and reference cells.
+ * For example, `you idiot` => [0] is named idiot, and `hey idiot` returns the pointer to [0].
+ */
+typedef struct
+{
+    char *Name;
+    s32  *CellAddress;
+} var;
