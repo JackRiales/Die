@@ -9,6 +9,21 @@
 
 #include "die.h"
 #include "commands.c"
+/*
+ * To implement variables we need to define a list of words that _cannot_
+ * be variable names. This is that list. All variable names will be mangled
+ * down to lowercase, so we don't need to worry about listing uppercase variants
+ * of our keywords.
+ */
+static const char* gReservedWords[] = {
+    "...",
+    "die",
+    "please",
+    "sorry",
+    "go",
+    "hey",
+    "you"
+};
 
 /*
  * List of interpreters -- keywords and their associated command function
