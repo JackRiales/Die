@@ -82,8 +82,8 @@ stop
 ### Printing ###
 Printing can be done in two ways:
 
-`sorry` prints the ascii char of the currently pointed-to variable
-`Sorry` prints the integer value.
+`sorry` prints the ascii char of the currently pointed-to variable,
+`Sorry` (capitalized) prints the integer value.
 
 ### Debug Mode ###
 Running die and passing in `--debug` activates debug mode. This will show the read-in source and each operation that is run, in order, as they are done. Excellent for seeing what's really going on! (thanks to [darkfire000](https://github.com/darkfire000) for adding this).

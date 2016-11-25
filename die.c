@@ -3,13 +3,18 @@
  *  A Language for the Aggressive Programmer, based on the ideas of Brain^&*#.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>    // Files and printf
+#include <stdlib.h>   // Heap allocators, i.e. malloc and calloc
+#include <string.h>   // String utilities
 
 #include "die.h"
 #include "commands.c"
 
+/*
+ * List of interpreters -- keywords and their associated command function
+ * Will possibly deprecate this usage in the future, since it requires a linear
+ * name search. NOTE(Jack) Maybe implement a hash-map instead?
+ */
 static const interpreter gInterpreters[NUM_COMMANDS] = {
     {"...", DoNothing},
     {"die", Increment},
