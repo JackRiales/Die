@@ -4,7 +4,7 @@
  */
 
 // Function declaration macro
-#define COMMAND(ComName) void ComName(cell_table *table)
+#define COMMAND(ComName) b32 ComName(cell_table *table)
 
 // debug mode on/off
 u32 debug = FALSE;
@@ -16,7 +16,7 @@ u32 debug = FALSE;
 COMMAND(DoNothing)
 {
     if(debug) printf("Doing nothing!\n");
-    return;
+    return TRUE;
 }
 
 /*
@@ -27,6 +27,7 @@ COMMAND(Increment)
 {
     *(*table).Pointer += 1;
     if(debug) printf("Incrementing to %d\n",  *(*table).Pointer);
+    return TRUE;
 }
 
 /*
@@ -37,6 +38,7 @@ COMMAND(Decrement)
 {
     *(*table).Pointer -= 1;
     if(debug) printf("Decrementing to %d\n",  *(*table).Pointer);
+    return TRUE;
 }
 
 /*
@@ -47,6 +49,7 @@ COMMAND(PointLeft)
 {
     table->Pointer--;
     if(debug) printf("Moving pointer left\n");
+    return TRUE;
 }
 
 /*
@@ -57,6 +60,7 @@ COMMAND(PointRight)
 {
     table->Pointer++;
     if(debug) printf("Moving pointer right\n", table->Pointer);
+    return TRUE;
 }
 
 /*
@@ -69,6 +73,7 @@ COMMAND(Print)
         printf("%c\n", *(*table).Pointer);
     else
         printf("%c", *(*table).Pointer);
+    return TRUE;
 }
 
 
@@ -84,6 +89,7 @@ COMMAND(Print)
 COMMAND(Increment10) {
     *(*table).Pointer += 10;
     if(debug) printf("Incrementing 10x to %d\n",  *(*table).Pointer);
+    return TRUE;
 }
 
 /*
@@ -94,6 +100,7 @@ COMMAND(Increment100)
 {
     *(*table).Pointer += 100;
     if(debug) printf("Incrementing 100x to %d\n",  *(*table).Pointer);
+    return TRUE;
 }
 
 /*
@@ -103,6 +110,7 @@ COMMAND(Increment100)
 COMMAND(Decrement10) {
     *(*table).Pointer -= 10;
     if(debug) printf("Decrementing 10x to %d\n",  *(*table).Pointer);
+    return TRUE;
 }
 
 /*
@@ -113,6 +121,7 @@ COMMAND(Decrement100)
 {
     *(*table).Pointer += 100;
     if(debug) printf("Decrementing 10x to %d\n",  *(*table).Pointer);
+    return TRUE;
 }
 
 /*
@@ -122,4 +131,5 @@ COMMAND(Decrement100)
 COMMAND(PrintValue)
 {
     printf("%d\n", *(*table).Pointer);
+    return TRUE;
 }
