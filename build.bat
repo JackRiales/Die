@@ -8,7 +8,7 @@ SET bindir=bin
 SET bin=Die.exe
 
 REM Source names
-SET Sources=..\die.c
+SET Sources=..\src\die.c
 
 REM Compiler and linker flags
 SET ccflags=/Od /nologo /MTd /fp:fast /Oi /W4 /FC /Zi /Gm -wd4201 -wd4100 -wd4189 -wd4505 -wd4127 -wd4996
