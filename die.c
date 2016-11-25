@@ -120,27 +120,66 @@ TokenizeSource(char *source)
 }
 
 /*
+ * Returns length of prefix if prefix is at the beginning of str
+ * otherwise returns 0
+ */
+int strprefix(const char *pre, const char *str)
+{
+    if (strlen(pre) > strlen(str)) return FALSE;
+    return (strncmp(pre, str, strlen(pre)) == 0)?strlen(pre):FALSE;
+}
+
+/*
+ * Returns length of suffix if suffix is at the end of str
+ * otherwise returns 0
+ */
+int strsuffix(const char *suf, const char *str)
+{
+    int diff = strlen(str) - strlen(suf);
+    if (diff < 0) return FALSE;
+    if (strcmp((str+diff), suf) == 0) return strlen(suf);
+    return FALSE;
+}
+
+/*
  * Takes in a command string and returns the associated function
  */
-static function
+static element
 InterpretCommand(char *command)
 {
-    if (!command) return DoNothing;
+    element e;
+    e.Function = DoNothing;
+    e.exec_count = 1;
+    if (!command) return e;
     for (int i = 0; i < NUM_COMMANDS; i++) {
-        if (strcmp(gInterpreters[i].ComString, command) == 0)
-            return gInterpreters[i].Function;
+        if (strcmp(gInterpreters[i].ComString, command) == 0) {
+            e.Function = gInterpreters[i].Function;
+            return e;
+        }
     }
-    return DoNothing;
+    
+    // Additional hard coded check for die and please with multiple "e"s    
+    int len;
+    if ( (len = strprefix("die", command)) ) {
+        e.Function = Increment;
+        e.exec_count = strlen(command) - len + 1;
+    }
+    else if ( (len = strprefix("ple", command)) &&  strsuffix("ase", command) ) {
+        e.Function = Decrement;
+        e.exec_count = strlen(command) - 5;
+    }
+    
+    return e;
 }
 
 /*
  * Compiles the list of tokens and outputs a list of
  * commands to process.
  */
-static function*
+static element*
 Compile(const source_tokens *tokens)
 {
-    function* command_buffer = (function*) malloc (tokens->Count * sizeof(function));
+    element* command_buffer = (element*) malloc (tokens->Count * sizeof(element));
     if (!command_buffer) return NULL;
 
     for (size_t i = 0; i < tokens->Count; i++)
@@ -156,11 +195,16 @@ Compile(const source_tokens *tokens)
  * Will break if command buffer is
  */
 static void
-Process(cell_table *table, u32 count, const function *commands)
+Process(cell_table *table, element *commands)
 {
-    for (size_t i = 0; i < count; i++)
+    while (1)
     {
-        commands[i](table);
+        if (commands == NULL) break;
+        b32 ret;
+        int i = 0;
+        for (; i < commands->exec_count; i++) ret = commands->Function(table);
+        if (ret) commands = commands->next;
+        else commands = commands->loopback;
     }
 }
 
@@ -194,10 +238,21 @@ main(int argc, char **argv)
     source_tokens tokens = TokenizeSource(source_buffer);
     free(source_buffer); source_buffer = NULL;
 
-    function* commands = Compile(&tokens);
+    element* commands = Compile(&tokens);
     if (!commands) return 1;
-
-    Process(&MainCellTable, tokens.Count, commands);
+    
+    // Go through all command elements and link to the next element
+    int i = 0;
+    for (; i < tokens.Count-1; i++) {
+        commands->next = (commands+1);
+        commands = commands->next;
+    }
+    // Set next = NULL for last element as a terminator
+    commands->next = NULL;
+    
+    // Reset pointer to start
+    commands = (commands-tokens.Count+1);
+    Process(&MainCellTable, commands);
     free(commands); commands = NULL;
 
     return 0;

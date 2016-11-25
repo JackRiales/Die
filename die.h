@@ -39,7 +39,7 @@ typedef struct {
  * so they can increment, move the pointer, etc.
  * Later, this will probably have a lot more capability.
  */
-typedef void (*function)(cell_table *table);
+typedef b32 (*function)(cell_table *table);
 
 /*
  * Interpreters are used to create associative arrays
@@ -64,3 +64,15 @@ typedef struct
     u32    Count;
     char **TokenList;
 } source_tokens;
+
+/*
+ * A LinkedList like element that holds a function to execute and some
+ * additional data (how often to execute function, next element, loop element)
+ */
+typedef struct element
+{
+    function Function;
+    struct element *next;
+    struct element *loopback;
+    u32 exec_count;
+} element;
