@@ -84,6 +84,7 @@ StringToLower(const char *string)
 }
 
 /*
+ * Binds a variable name to the current pointer.
  * Effectively adds the name to the global table.
  * Returns the added variable object, or NULL
  * if one of the following failures happen:
@@ -94,6 +95,7 @@ StringToLower(const char *string)
  *             (Same with the lookup function, below)
  */
 static var*
+BindVariable(cell_table *table, const char *varname)
 {
     if (!table || !varname) return NULL;
 
