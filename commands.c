@@ -6,6 +6,10 @@
 // Function declaration macro
 #define COMMAND(ComName) void ComName(cell_table *table)
 
+// NEW function declaration macro, complete with an optional boolean return and
+// variable, castable void arguments.
+#define COMMAND_EX(ComName) b32 ComName(cell_table *table, size_t argc, void **args)
+
 // debug mode on/off
 u32 debug = FALSE;
 
@@ -56,7 +60,7 @@ COMMAND(PointLeft)
 COMMAND(PointRight)
 {
     table->Pointer++;
-    if(debug) printf("Moving pointer right\n", table->Pointer);
+    if(debug) printf("Moving pointer right\n");
 }
 
 /*
@@ -70,12 +74,6 @@ COMMAND(Print)
     else
         printf("%c", *(*table).Pointer);
 }
-
-
-/*
- * New (temporary?) functions
- */
-
 
 /*
  * Com: Increment 10
