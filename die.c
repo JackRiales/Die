@@ -6,6 +6,7 @@
 #include <stdio.h>    // Files and printf
 #include <stdlib.h>   // Heap allocators, i.e. malloc and calloc
 #include <string.h>   // String utilities
+#include <ctype.h>    // `tolower`
 
 #include "die.h"      // Type and struct definitions
 #include "commands.c" // Command implementations
@@ -66,6 +67,7 @@ static const interpreter gInterpreters[NUM_COMMANDS] = {
 static char*
 CopyString(const char *original)
 {
+    if (!original) return NULL;
     char *copy = malloc (sizeof(char) * strlen(original) + 1);
     strcpy(copy, original);
     return copy;
@@ -78,8 +80,9 @@ CopyString(const char *original)
 static char*
 StringToLower(const char *string)
 {
+    if (!string) return NULL;
     char *copy = CopyString(string);
-    for (; copy; ++copy) *copy = tolower(*copy);
+    for (; copy; ++copy) *copy = (char) tolower(*copy);
     return copy;
 }
 
@@ -310,7 +313,9 @@ Compile(const source_tokens *tokens)
  * Will break if command buffer is
  */
 static void
-Process(cell_table *table, u32 count, const function *commands)
+Process(cell_table *table,
+        u32 count,
+        const function *commands)
 {
     for (size_t i = 0; i < count; i++)
     {
