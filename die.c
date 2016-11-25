@@ -173,6 +173,8 @@ GoToVariable(cell_table *table, char *varname)
 
     // Index is the found var, just point to the cell
     table->Pointer = gVariables[var_index].CellAddress;
+
+    free(varname_c);
     return TRUE;
 }
 
