@@ -31,7 +31,10 @@ public class die {
     
     public static void main(String[] args){
         initTbl(1);
-        readFile(args[0]);
+        for(String arg : args) {
+            if(arg.equals("--debug")) debug = true;
+            else readFile(arg);
+        }
         int i = 0;
         int j = 0;
         while(i >= 0 && i < instructions.size() && j >= 0 && j < instructions.get(i).length){
@@ -109,9 +112,46 @@ public class die {
                 pointLeft();
                 break;
             default:
+                if(expandedHandling(i,j)) break; // successfull expanded handling
                 if(debug) System.out.println("Debug: command '" + cmd + "' not found and skipped!");
                 break;
         }
+    }
+    
+    private static boolean expandedHandling(int i, int j){
+        String cmd = instructions.get(i)[j];
+        if(cmd.matches("die*$|Die*$|DIE*$")){
+            if(cmd.startsWith("di")){
+                for(int z = 0; z < cmd.length()-2; z++){
+                    increment();
+                }
+            } else if(cmd.startsWith("Di")){
+                for(int z = 0; z < cmd.length()-2; z++){
+                    increment10();
+                }
+            } else if(cmd.startsWith("DI")){
+                for(int z = 0; z < cmd.length()-2; z++){
+                    increment100();
+                }
+            } else return false;
+            return true;           
+        } else if(cmd.matches("please*$|Please*$|PLEASE*$")){
+            if(cmd.startsWith("pleas")){
+                for(int z = 0; z < cmd.length()-5; z++){
+                    decrement();
+                }
+            } else if(cmd.startsWith("Pleas")){
+                for(int z = 0; z < cmd.length()-5; z++){
+                    decrement10();
+                }
+            } else if(cmd.startsWith("PLEAS")){
+                for(int z = 0; z < cmd.length()-5; z++){
+                    decrement100();
+                }
+            } else return false;
+            return true;
+        }
+        return false;
     }
     
     // Command Handling
