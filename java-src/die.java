@@ -4,6 +4,7 @@
 */
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class die {
     
@@ -11,6 +12,8 @@ public class die {
     
     private static ArrayList<Integer> table = new ArrayList<Integer>();
     private static int pointer = 0;
+    
+    private static HashMap<String, Integer> vars = new HashMap<String, Integer>();
     
     private static boolean debug = false;
     
@@ -25,7 +28,9 @@ public class die {
         "sorry",    //Print
         "Sorry",    //PrintValue
         "go",       //PointRight
-        "."         //PointLeft
+        ".",        //PointLeft
+        "hey",      //PointerToVar
+        "you"       //StorePointerToVar
     };
     
     
@@ -110,6 +115,15 @@ public class die {
                 break;
             case ".":
                 pointLeft();
+                break;
+            case "you":
+                setVar(i,j);
+                break;
+            case "hey":
+                getVar(i,j);
+                break;
+            case "":
+                //DoNothing
                 break;
             default:
                 if(expandedHandling(i,j)) break; // successfull expanded handling
@@ -196,6 +210,33 @@ public class die {
     private static void pointLeft(){
         if(pointer-1 >= 0) pointer--;
         if(debug) System.out.println("Debug: decremented Pointer to #" + pointer);
+    }
+    private static void setVar(int i, int j){
+        if(j+1 > instructions.get(i).length) {System.err.println("Variablename not found!"); System.exit(0);} // close Programm if neccessary
+        String var = instructions.get(i)[j+1];
+        for(String s : gReservedWords){
+            if(var.equals(s)){
+                System.err.println("Variablename is Reserved Word: variable '" + var +"'");
+                System.exit(0); // close Programm if neccessary
+            }
+        }
+        vars.put(var, pointer);
+        instructions.get(i)[j+1] = "";
+        if(debug) System.out.println("Debug: Stored '" + var + "' => #" + pointer);
+    }
+    private static void getVar(int i, int j){
+        if(j+1 > instructions.get(i).length) {System.err.println("Variablename not found!"); System.exit(0);} // close Programm if neccessary
+        String var = instructions.get(i)[j+1];
+        for(String s : gReservedWords){
+            if(var.equals(s)){
+                System.err.println("Variablename is Reserved Word: variable '" + var +"'");
+                System.exit(0); // close Programm if neccessary
+            }
+        }
+        int p = vars.get(var);
+        if(p >= 0) pointer = p;
+        instructions.get(i)[j+1] = "";
+        if(debug) System.out.println("Debug: Jumped to #" + pointer + ": '" + var + "' => #" + p);
     }
     
 }
