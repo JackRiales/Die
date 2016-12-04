@@ -5,6 +5,8 @@ Die is a language you can use to tell other programmers what you think of them, 
 as make them confused and angry as they try and parse out your code.
 It's a simple language, based on the ideas of Brainfuck.
 
+This language is still being built, so if you want to contribute please be advised that changes to the specifications are likely and your code may become deprecated quickly.
+
 I don't personally recommend using this language. But you're certainly welcome to do so!
 
 ## Building ##
