@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Die : A language for the aggressive programmer!">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Die</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/JackRiales/Die">View on GitHub</a>
+
+          <h1 id="project_title">Die</h1>
+          <h2 id="project_tagline">A language for the aggressive programmer!</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/JackRiales/Die/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/JackRiales/Die/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a id="about" class="anchor" href="#about" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>About</h2>
+
+<p>Die is a language you can use to tell other programmers what you think of them, as well
+as make them confused and angry as they try and parse out your code.
+It's a simple language, based on the ideas of Brainfuck.</p>
+
+<p>This language is still being built, so if you want to contribute please be advised that changes to the specifications are likely and your code may become deprecated quickly.</p>
+
+<p>I don't personally recommend using this language. But you're certainly welcome to do so!</p>
+
+<h2>
+<a id="building" class="anchor" href="#building" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building</h2>
+
+<p>This interpreter is written from scratch in C. Any standard compiler should do the job without
+any issue. I use build scripts in the form of build.sh and build.bat myself.</p>
+
+<h2>
+<a id="specification" class="anchor" href="#specification" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Specification</h2>
+
+<p>Below is the language specification, as I've designed it. Some features in this specification <strong>have not been implemented yet</strong>. They're merely guidelines for what I want to have the language do. Just be aware!</p>
+
+<h3>
+<a id="cells" class="anchor" href="#cells" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cells</h3>
+
+<p>Programs in Die are made up of an array of <em>Cells</em> and a <em>Pointer</em> to those cells. Each cell starts out with a value of 0 and can be incremented and decremented. The pointer can be moved left and right, and values can be printed. That's all!</p>
+
+<h3>
+<a id="comments" class="anchor" href="#comments" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Comments</h3>
+
+<p>Comments are written like you're talking under your breath.</p>
+
+<p><code>... This is a comment</code></p>
+
+<p><em>Line comments are the only ones that are supported right now.</em>
+For funsies, how about just don't use comments?</p>
+
+<h3>
+<a id="increments--decrements" class="anchor" href="#increments--decrements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Increments &amp; Decrements</h3>
+
+<p>The central command of the language is die, which is used to increment the current cell value. Various forms of die increment the currently pointed value in certain different ways.</p>
+
+<pre><code>die =&gt; +1
+Die =&gt; +10
+DIE =&gt; +100
+</code></pre>
+
+<p>Optionally, increasing the number of E's multiplies the incrementing value.
+<code>dieeee =&gt; +4</code></p>
+
+<p>To decrement, the same principals are used but the word is <code>please</code></p>
+
+<pre><code>please =&gt; -1
+Please =&gt; -10
+PLEASE =&gt; -100
+</code></pre>
+
+<p>and it can be multipled again with the number of E's
+<code>pleeeease =&gt; -4</code></p>
+
+<h3>
+<a id="the-pointer" class="anchor" href="#the-pointer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Pointer</h3>
+
+<p>You can move the pointer left and right by using <code>.</code> and <code>go</code>.</p>
+
+<pre><code>go die. =&gt; Move to cell 1 and increment by 1, then go back to cell 0.
+</code></pre>
+
+<h3>
+<a id="loops" class="anchor" href="#loops" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Loops</h3>
+
+<p>~Not yet implemented~</p>
+
+<p>While loops are done by using <code>ok</code> and <code>stop</code>. Whiles are terminated when the current cell is 0. Be aware, this makes it really easy to make infinite loops, by accident.</p>
+
+<pre><code>ok
+please
+die die die
+stop
+</code></pre>
+
+<p>For loops are done using <code>ok so</code> and <code>stop</code>. The number of o's in <code>so</code> are how many times it loops.</p>
+
+<pre><code>... loop 4 times
+ok soooo
+die die die die die
+stop
+</code></pre>
+
+<h3>
+<a id="printing" class="anchor" href="#printing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Printing</h3>
+
+<p>Printing can be done in two ways:</p>
+
+<p><code>sorry</code> prints the ascii char of the currently pointed-to variable,
+<code>Sorry</code> (capitalized) prints the integer value.</p>
+
+<h3>
+<a id="debug-mode" class="anchor" href="#debug-mode" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Debug Mode</h3>
+
+<p>Running die and passing in <code>--debug</code> activates debug mode. This will show the read-in source and each operation that is run, in order, as they are done. Excellent for seeing what's really going on! (thanks to <a href="https://github.com/darkfire000">darkfire000</a> for adding this).</p>
+
+<h2>
+<a id="example-program" class="anchor" href="#example-program" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Example Program</h2>
+
+<pre><code>... Basic DIE language file
+... Repository w/ specifications found at https://github.com/JackRiales/Die
+... Prints "DIE" to stdout
+
+Die Die Die Die Die Die
+die die die die die die die die
+sorry
+die die die die die
+sorry
+please please please please please die sorry
+go Die sorry
+</code></pre>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Die maintained by <a href="https://github.com/JackRiales">JackRiales</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
