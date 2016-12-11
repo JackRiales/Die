@@ -5,6 +5,8 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Deque;
+import java.util.ArrayDeque;
 
 public class die {
     
@@ -13,9 +15,11 @@ public class die {
     private static ArrayList<Integer> table = new ArrayList<Integer>();
     private static int pointer = 0;
     
-    private static HashMap<String, Integer> vars = new HashMap<String, Integer>();
+    private static HashMap<String, Integer> vars = new HashMap<String, Integer>(); // holds "name" => pointer, "name2" => pointer, ...
+    private static Deque<Integer[]> loopStack = new ArrayDeque<Integer[]>(); // holds {line, posInLine, counter, pointer}, {line, posInLine, counter, pointer}, ... | counter = -1 if while loop, pointer = -1 if for loop
     
     private static boolean debug = false;
+    private static boolean MULTIPLE_FILES = false;
     
     private static String[] gReservedWords = { // important for variable implementation
         "...",      //DoNothing
@@ -30,15 +34,22 @@ public class die {
         "go",       //PointRight
         ".",        //PointLeft
         "hey",      //PointerToVar
-        "you"       //StorePointerToVar
+        "you",      //StorePointerToVar
+        /*
+         * Loops: do{body}while(statement) or do{body}for(statement) (Statementcheck at "stop" --> always one execution of the body minimum
+         */
+        "ok",       //LoopStart
+        "stop"      //LoopEnd
     };
     
     
     public static void main(String[] args){
         initTbl(1);
         for(String arg : args) {
-            if(arg.equals("--debug")) debug = true;
-            else readFile(arg);
+            if(arg.equals("--debug")) debug = true; // enables Debug-Mode
+            else if(arg.equals("--multifile")) MULTIPLE_FILES = true; //enables multiple files (! file will be integrated without reseting!)
+            else if(instructions.size() == 0 || MULTIPLE_FILES) readFile(arg);
+            else System.err.println("Argument '" + arg + "' is no match.");
         }
         int i = 0;
         int j = 0;
@@ -48,7 +59,8 @@ public class die {
                 j = 0; i++; continue;
             }
             
-            handle(i,j);
+            Integer[] ij = handle(i,j);
+            i = ij[0]; j = ij[1];
             
             if((j+1) >= instructions.get(i).length) { j = 0; i++;}
             else j++;
@@ -61,6 +73,9 @@ public class die {
         }
     }
     
+    /*
+     * reads File to instructions
+     */
     private static void readFile(String filename){
         BufferedReader br = null;
         try {
@@ -78,9 +93,13 @@ public class die {
         }
     }
     
-    private static void handle(int i, int j){
+    /*
+     * handling
+     * @return returns (i, j) for jumps/loops etc
+     */
+    private static Integer[] handle(int i, int j){
         String cmd = instructions.get(i)[j];
-        if(cmd.endsWith(".")) { // enables to write 'die.' instead of 'die .'
+        if(cmd.length() > 1 && cmd.endsWith(".")) { // enables to write 'die.' instead of 'die .'
             instructions.get(i)[j] = instructions.get(i)[j].substring(0, cmd.length()-1);
             handle(i,j);
             cmd = ".";
@@ -122,6 +141,12 @@ public class die {
             case "hey":
                 getVar(i,j);
                 break;
+            case "ok":
+                startLoop(i, j);
+                break;
+            case "stop":
+                if(debug) System.out.println("Debug: loop-stop: maybe jumping now from " + i + " " + j);
+                return stopLoop(i, j);
             case "":
                 //DoNothing
                 break;
@@ -130,8 +155,13 @@ public class die {
                 if(debug) System.out.println("Debug: command '" + cmd + "' not found and skipped!");
                 break;
         }
+        //if(debug) System.out.println("Debug: Normal handling with: " + i + " " + j);
+        return new Integer[]{i, j};
     }
     
+    /*
+     * expanded Handling for multiple-calls of die/please/etc
+     */
     private static boolean expandedHandling(int i, int j){
         String cmd = instructions.get(i)[j];
         if(cmd.matches("die*$|Die*$|DIE*$")){
@@ -166,6 +196,15 @@ public class die {
             return true;
         }
         return false;
+    }
+    
+    /*
+     * @returns nextCommand (in/next line) as String
+     */
+    private static String nextCommand(int i, int j){
+        if((j+1) >= instructions.get(i).length) { j = 0; i++;}
+        else j++;
+        return instructions.get(i)[j];
     }
     
     // Command Handling
@@ -233,10 +272,46 @@ public class die {
                 System.exit(0); // close Programm if neccessary
             }
         }
+        if(debug) System.out.println("Debug: Getting variable '" + var + "'...");
+        if(var.equals("")) System.out.println("Error: varname = ''");
         int p = vars.get(var);
         if(p >= 0) pointer = p;
-        instructions.get(i)[j+1] = "";
+        //instructions.get(i)[j+1] = "";
         if(debug) System.out.println("Debug: Jumped to #" + pointer + ": '" + var + "' => #" + p);
     }
+    private static void startLoop(int i, int j){
+        Integer[] current = loopStack.peek(); // current loop [0] line, [1] linePos, [2] counter, [3] pointer
+        if(current != null && (current[0] == i && current[1] == j)) return; // loop already stacked (current position (i,j) is current Loop)
+        // new loop to initialize
+        String next = nextCommand(i, j); // next cmd in line/next line
+        int count = -1;
+        int point = -1;
+        if(next.matches("so*")){ // for loop
+            count = next.length()-1;
+        } else { // while loop
+            point = pointer;
+        }
+        loopStack.push(new Integer[]{i, j, count, point});
+    }
+    private static Integer[] stopLoop(int i, int j){
+        Integer[] current = loopStack.peek(); // current loop [0] line, [1] linePos, [2] counter, [3] pointer
+        if(current == null) {System.err.println("Loop Stop without loop Start!"); System.exit(1);}
+        if(current[2] != -1 && current[3] == -1) { // for loop with counting
+            if(current[2] > 1){
+                loopStack.peek()[2]--;
+                return new Integer[]{current[0], current[1]}; // jmp back to loop start
+            } else { // end loop and delete from stack
+                loopStack.pop();
+            }
+        } else if(current[2] == -1 && current[3] != -1){ // while loop with pointer variable
+            if(table.get(current[3]) != 0){
+                return new Integer[]{current[0], current[1]}; // jmp back to loop start
+            } else { // end loop and delete from stack
+                loopStack.pop();
+            }
+        }
+        return new Integer[]{i, j};
+    }
+   
     
 }
